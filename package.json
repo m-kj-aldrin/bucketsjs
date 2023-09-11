@@ -1,3 +1,14 @@
 {
-    "name": "bucket"
+  "name": "bucketsjs",
+  "version": "1.0.0",
+  "description": "A smal function that sets up a stack of buckets that fills by interpolating by it's previous bucket in stack and it's own target value. Useful for example to tween mouseposition.",
+  "main": "bucket.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
 }
