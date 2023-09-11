@@ -10,11 +10,6 @@ const mouse_y = bucket(500, 8000, {
     tail: nTails,
 });
 
-// window.addEventListener("mousemove", (e) => {
-//   mouse_x.set(e.clientX);
-//   mouse_y.set(e.clientY);
-// });
-
 const canvas = document.createElement("canvas");
 document.body.appendChild(canvas);
 
