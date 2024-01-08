@@ -1,3 +1,3 @@
 # bucket.js
 
-A smal function that sets up a stack of buckets that fills by interpolating by it's previous bucket in stack and it's own target value. Useful for example to tween mouseposition.
+A small function that returns a set function that adds a new bucket to the bucket stack, all the buckets in the stack localy interpolates between it's own target value and the previuous bucket value
