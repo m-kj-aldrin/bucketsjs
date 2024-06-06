@@ -1,41 +1,26 @@
-import bucket from "../src/index.js";
+import Bucket from "../src/index.js";
 
-const nTails = 128;
+const bucketX = new Bucket(0, { duration: 1000, easing: (x) => x * x });
 
-const mouse_x = bucket(300, 8000, {
-  tail: nTails,
-  easing: (x) => x * 4,
-});
-
-const mouse_y = bucket(500, 8000, {
-  tail: nTails,
-  easing: "linear",
-});
+const bucketY = new Bucket(0, { duration: 1000, easing: (x) => x * x });
 
 const canvas = document.createElement("canvas");
 document.body.appendChild(canvas);
+
+canvas.addEventListener("mousemove", (e) => {
+  let [x, y] = [e.clientX, e.clientY];
+  bucketX.write(x);
+  bucketY.write(y);
+});
 
 canvas.width = canvas.clientWidth;
 canvas.height = canvas.clientHeight;
 
 const ctx = canvas.getContext("2d");
 
-let x = canvas.width / 2;
-let y = canvas.height / 2;
-
-/**@param {number} now */
-function draw(now) {
-  x += (Math.random() - 0.5) * 64;
-  y += (Math.random() - 0.5) * 64;
-
-  x = Math.min(canvas.width, Math.max(0, x));
-  y = Math.min(canvas.height, Math.max(0, y));
-
-  mouse_x.set(x);
-  mouse_y.set(y);
-
+function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const tail = { x: mouse_x.tail, y: mouse_y.tail };
+  const tail = { x: bucketX.stack, y: bucketY.stack };
 
   const segments = tail.x.map((_, i) => {
     i = tail.x.length - 1 - i;
@@ -56,6 +41,7 @@ function draw(now) {
     ctx.lineTo(segment.x, segment.y);
 
     let opacity = i / segments.length;
+    ctx.lineWidth = 1 + (1 - opacity) * 4;
     ctx.strokeStyle = `hsla(0,50%,50%,${1 - opacity})`;
 
     ctx.stroke();
@@ -65,8 +51,8 @@ function draw(now) {
 
   if (firstSegment) {
     ctx.beginPath();
-    ctx.arc(firstSegment.x, firstSegment.y, 2, 0, Math.PI * 2);
-    ctx.fillStyle = "blue";
+    ctx.arc(firstSegment.x, firstSegment.y, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = "hsl(0,50%,50%)";
     ctx.fill();
   }
 

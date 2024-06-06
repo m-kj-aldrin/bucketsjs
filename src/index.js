@@ -9,8 +9,8 @@ const easing_functions = {
 
 /**
  * @typedef {Object} options
+ * @prop {number} [duration]
  * @prop {BuiltInEasingFunctions | EasingFunction} [easing]
- * @prop {number} [tail]
  */
 
 /**
@@ -23,80 +23,87 @@ function interpolate(a, b, f) {
 }
 
 /**@type {Required<options>} */
-const defauls_opt = {
+const default_opt = {
+  duration: 100,
   easing: "linear",
-  tail: 2,
 };
 
-/**
- * @param {number} value
- * @param {number} duration
- * @param {options} opt
- */
-export default function (value, duration, opt = {}) {
+export default class Bucket {
   /**@type {Map<number,number>} */
-  const target_bucket = new Map();
-  let bucket_count = 0;
-
+  #bucketStack = new Map();
+  #bucketIteration = 0;
+  #bucketIterationHead = 0;
   /**@type {Required<options>} */
-  let _opt = { ...defauls_opt, ...opt };
-
-  /**@type {(x:number) => number} */
-  let easing_function = easing_functions.linear;
+  #options;
 
   /**
-   * @param {number} new_value
+   * @param {number} value
+   * @param {options} options
    */
-  function set(new_value) {
-    if (typeof new_value != "number") return;
-    const local_previous_bucket_index = bucket_count - 1;
-    const local_bucket_index = bucket_count++;
+  constructor(value, options) {
+    this.#options = { ...default_opt, ...options };
 
-    let local_value = target_bucket.get(local_previous_bucket_index) ?? value;
-    target_bucket.set(local_bucket_index, local_value);
+    this.#bucketStack.set(this.#bucketIteration, value);
+    this.#bucketIterationHead = this.#bucketIteration;
+    this.#bucketIteration++;
+  }
 
+  /**
+   * Returns the value of the head of the bucket stack
+   */
+  get value() {
+    return this.#bucketStack.get(this.#bucketIterationHead);
+  }
+
+  /**
+   * Returns the bucket stack
+   */
+  get stack() {
+    return [...this.#bucketStack.values()];
+  }
+
+  /**
+   * Writes a new value to the bucket stack, returns a promise that resolves when the duration has elapsed
+   * @param {number} value
+   */
+  write(value) {
+    if (typeof value != "number") return;
+    const local_previous_bucket_index = this.#bucketIteration - 1;
+    this.#bucketIterationHead = this.#bucketIteration;
+    const local_bucket_index = this.#bucketIteration++;
+    let local_value = this.#bucketStack.get(local_previous_bucket_index) ?? value;
+    this.#bucketStack.set(local_bucket_index, local_value);
     const local_start = performance.now();
+
+    const easing_function =
+      typeof this.#options.easing === "function"
+        ? this.#options.easing
+        : easing_functions[this.#options.easing];
 
     /**@type {Promise<number>} */
     return new Promise((res) => {
       /**@param {number} now */
-      function iterate(now) {
+      const iterate = (now) => {
         const local_elapsed = now - local_start;
+        if (local_elapsed > this.#options.duration) {
+          local_value = value;
+          this.#bucketStack.set(local_bucket_index, local_value);
 
-        if (local_elapsed > duration) {
-          local_value = new_value;
-          target_bucket.set(local_bucket_index, local_value);
-
-          if (local_bucket_index - (bucket_count - _opt.tail) < 0) {
-            target_bucket.delete(local_bucket_index);
-          }
+          let previousIteration = local_bucket_index - 1;
+          this.#bucketStack.delete(previousIteration);
 
           res(local_bucket_index);
           return;
         }
-
         local_value = interpolate(
-          target_bucket?.get(local_previous_bucket_index) ?? value,
-          new_value,
-          easing_function(local_elapsed / duration)
+          this.#bucketStack?.get(local_previous_bucket_index) ?? value,
+          value,
+          easing_function(local_elapsed / this.#options.duration)
         );
-
-        target_bucket.set(local_bucket_index, local_value);
-
+        this.#bucketStack.set(local_bucket_index, local_value);
         requestAnimationFrame(iterate);
-      }
-
+      };
       requestAnimationFrame(iterate);
     });
   }
-
-  return {
-    set,
-    get value() {
-      return target_bucket.get(bucket_count - 1) ?? value;
-    },
-    get tail() {
-      return [...target_bucket.values()].slice(-_opt.tail);
-    },
-  };
 }
