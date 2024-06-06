@@ -1,15 +1,16 @@
 /**
  * @param {number} value
  * @param {number} duration
- * @param {typeof defauls_opt} opt
+ * @param {options} opt
  */
-export default function _default(value: number, duration: number, opt?: typeof defauls_opt): {
+export default function _default(value: number, duration: number, opt?: options): {
     set: (new_value: number) => Promise<any> | undefined;
     readonly value: number;
     readonly tail: number[];
 };
-declare namespace defauls_opt {
-    let easing: string;
-    let tail: number;
-}
-export {};
+export type EasingFunction = (x: number) => number;
+export type BuiltInEasingFunctions = "linear";
+export type options = {
+    easing?: "linear" | EasingFunction | undefined;
+    tail?: number | undefined;
+};

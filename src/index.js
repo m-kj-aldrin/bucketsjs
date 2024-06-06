@@ -1,4 +1,5 @@
 const easing_functions = {
+  /**@param {number} x */
   linear: (x) => x,
 };
 
