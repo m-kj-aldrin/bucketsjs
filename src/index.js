@@ -2,6 +2,16 @@ const easing_functions = {
   linear: (x) => x,
 };
 
+/**@typedef {(x:number)=>number} EasingFunction */
+
+/**@typedef {"linear"} BuiltInEasingFunctions */
+
+/**
+ * @typedef {Object} options
+ * @prop {BuiltInEasingFunctions | EasingFunction} [easing]
+ * @prop {number} [tail]
+ */
+
 /**
  * @param {number} a
  * @param {number} b
@@ -11,26 +21,24 @@ function interpolate(a, b, f) {
   return a * (1 - f) + b * f;
 }
 
+/**@type {Required<options>} */
 const defauls_opt = {
   easing: "linear",
-  tail: 1,
+  tail: 2,
 };
 
 /**
  * @param {number} value
  * @param {number} duration
- * @param {typeof defauls_opt} opt
+ * @param {options} opt
  */
 export default function (value, duration, opt = {}) {
   /**@type {Map<number,number>} */
   const target_bucket = new Map();
-  // target_bucket.set(0, value);
   let bucket_count = 0;
 
-  opt = {
-    ...defauls_opt,
-    ...opt,
-  };
+  /**@type {Required<options>} */
+  let _opt = { ...defauls_opt, ...opt };
 
   /**@type {(x:number) => number} */
   let easing_function = easing_functions.linear;
@@ -58,7 +66,7 @@ export default function (value, duration, opt = {}) {
           local_value = new_value;
           target_bucket.set(local_bucket_index, local_value);
 
-          if (local_bucket_index - (bucket_count - opt.tail) < 0) {
+          if (local_bucket_index - (bucket_count - _opt.tail) < 0) {
             target_bucket.delete(local_bucket_index);
           }
 
@@ -87,7 +95,7 @@ export default function (value, duration, opt = {}) {
       return target_bucket.get(bucket_count - 1) ?? value;
     },
     get tail() {
-      return [...target_bucket.values()].slice(-opt.tail);
+      return [...target_bucket.values()].slice(-_opt.tail);
     },
   };
 }

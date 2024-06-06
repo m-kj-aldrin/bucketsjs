@@ -1,14 +1,22 @@
 {
-  "name": "bucketsjs",
-  "version": "1.0.0",
-  "description": "A smal function that sets up a stack of buckets that fills by interpolating by it's previous bucket in stack and it's own target value. Useful for example to tween mouseposition.",
-  "main": "bucket.js",
-  "directories": {
-    "test": "test"
-  },
+  "license": "ISC",
+  "author": "mkja",
+  "name": "@mkja/buckets",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build && tsc"
   },
-  "author": "",
-  "license": "ISC"
+  "files": [
+    "dist",
+    "types"
+  ],
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vite": "^5.2.12"
+  }
 }
