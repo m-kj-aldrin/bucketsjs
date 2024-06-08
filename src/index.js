@@ -1,3 +1,5 @@
+import { Stack } from "./stack.js";
+
 const easing_functions = {
   /**@param {number} x */
   linear: (x) => x,
@@ -29,10 +31,8 @@ const default_opt = {
 };
 
 export default class Bucket {
-  /**@type {Map<number,number>} */
-  #bucketStack = new Map();
-  #bucketIteration = 0;
-  #bucketIterationHead = 0;
+  #bucketStack = new Stack();
+
   /**@type {Required<options>} */
   #options;
 
@@ -42,24 +42,21 @@ export default class Bucket {
    */
   constructor(value, options) {
     this.#options = { ...default_opt, ...options };
-
-    this.#bucketStack.set(this.#bucketIteration, value);
-    this.#bucketIterationHead = this.#bucketIteration;
-    this.#bucketIteration++;
+    this.#bucketStack.push(value);
   }
 
   /**
    * Returns the value of the head of the bucket stack
    */
   get value() {
-    return this.#bucketStack.get(this.#bucketIterationHead);
+    return this.#bucketStack.head?.value;
   }
 
   /**
    * Returns the bucket stack
    */
   get stack() {
-    return [...this.#bucketStack.values()];
+    return this.#bucketStack.elements.map((node) => node.value);
   }
 
   /**
@@ -68,12 +65,11 @@ export default class Bucket {
    */
   write(value) {
     if (typeof value != "number") return;
-    const local_previous_bucket_index = this.#bucketIteration - 1;
-    this.#bucketIterationHead = this.#bucketIteration;
-    const local_bucket_index = this.#bucketIteration++;
-    let local_value = this.#bucketStack.get(local_previous_bucket_index) ?? value;
-    this.#bucketStack.set(local_bucket_index, local_value);
-    const local_start = performance.now();
+
+    let localValue = this.#bucketStack.head?.value ?? value;
+    const localNode = this.#bucketStack.push(localValue);
+
+    const localStartTime = performance.now();
 
     const easing_function =
       typeof this.#options.easing === "function"
@@ -84,23 +80,25 @@ export default class Bucket {
     return new Promise((res) => {
       /**@param {number} now */
       const iterate = (now) => {
-        const local_elapsed = now - local_start;
-        if (local_elapsed > this.#options.duration) {
-          local_value = value;
-          this.#bucketStack.set(local_bucket_index, local_value);
+        const localElapsedTime = now - localStartTime;
 
-          let previousIteration = local_bucket_index - 1;
-          this.#bucketStack.delete(previousIteration);
+        if (localElapsedTime > this.#options.duration) {
+          localValue = value;
+          localNode.value = localValue;
 
-          res(local_bucket_index);
+          this.#bucketStack.delete(localNode.prev);
+
+          res(localNode);
           return;
         }
-        local_value = interpolate(
-          this.#bucketStack?.get(local_previous_bucket_index) ?? value,
+        let prevValue = localNode.prev?.value ?? value;
+        localValue = interpolate(
+          prevValue,
           value,
-          easing_function(local_elapsed / this.#options.duration)
+          easing_function(localElapsedTime / this.#options.duration)
         );
-        this.#bucketStack.set(local_bucket_index, local_value);
+        localNode.value = localValue;
+
         requestAnimationFrame(iterate);
       };
       requestAnimationFrame(iterate);
