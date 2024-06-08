@@ -1,20 +1,20 @@
 import Bucket from "../src/index.js";
 
-const bucketX = new Bucket(0, { duration: 1000, easing: (x) => x * x });
-
-const bucketY = new Bucket(0, { duration: 1000, easing: (x) => x * x });
-
 const canvas = document.createElement("canvas");
 document.body.appendChild(canvas);
+
+canvas.width = canvas.clientWidth;
+canvas.height = canvas.clientHeight;
+
+const bucketX = new Bucket(canvas.width / 2, { duration: 2000, easing: (x) => x * x * x });
+
+const bucketY = new Bucket(canvas.height / 2, { duration: 2000, easing: (x) => x * x * x });
 
 canvas.addEventListener("mousemove", (e) => {
   let [x, y] = [e.clientX, e.clientY];
   bucketX.write(x);
   bucketY.write(y);
 });
-
-canvas.width = canvas.clientWidth;
-canvas.height = canvas.clientHeight;
 
 const ctx = canvas.getContext("2d");
 
@@ -28,6 +28,8 @@ function draw() {
     return pos;
   });
 
+  let lineWidth = 12;
+
   segments.forEach((segment, i) => {
     ctx.beginPath();
     if (i == 0) {
@@ -40,9 +42,9 @@ function draw() {
 
     ctx.lineTo(segment.x, segment.y);
 
-    let opacity = i / segments.length;
-    ctx.lineWidth = 1 + (1 - opacity) * 4;
-    ctx.strokeStyle = `hsla(0,50%,50%,${1 - opacity})`;
+    let f = i / segments.length;
+    ctx.lineWidth = 1 + (1 - f) * lineWidth;
+    ctx.strokeStyle = `hsla(0,50%,50%,${1 - f})`;
 
     ctx.stroke();
   });
@@ -51,7 +53,7 @@ function draw() {
 
   if (firstSegment) {
     ctx.beginPath();
-    ctx.arc(firstSegment.x, firstSegment.y, 2.5, 0, Math.PI * 2);
+    ctx.arc(firstSegment.x, firstSegment.y, lineWidth / 2, 0, Math.PI * 2);
     ctx.fillStyle = "hsl(0,50%,50%)";
     ctx.fill();
   }
