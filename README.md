@@ -2,8 +2,6 @@
 
 An time based interpolating stack, each element in the stack interpolates by it's previous element and it's set value. When an element has elapsed the set duration it's previous element is deleted keeping only alive elements in the stack.
 
-![graph](diagram.svg)
-
 ```shell
 npm i @mkja/buckets
 ```
