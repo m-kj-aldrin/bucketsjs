@@ -2,23 +2,7 @@
 
 An time based interpolating stack, each element in the stack interpolates by it's previous element and it's set value. When an element has elapsed the set duration it's previous element is deleted keeping only alive elements in the stack.
 
-```mermaid
-flowchart LR;
-    subgraph element_x
-    direction LR;
-    id0[previous_value]-->id1[[interpolation]];
-    id2[target_value]-->id1;
-    id1-->id3((current
-    value))
-    end
-    subgraph element_n
-    direction LR;
-    id3-->id4[[interpolation]];
-    id5[target_value]-->id4;
-    id4-->id6((current
-    value))
-    end
-```
+![graph](diagram.svg)
 
 ```shell
 npm i @mkja/buckets
