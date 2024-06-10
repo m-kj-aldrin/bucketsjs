@@ -2,14 +2,15 @@
   "license": "ISC",
   "author": "mkja",
   "name": "@mkja/buckets",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
   "type": "module",
   "files": [
     "dist",
-    "types"
+    "types",
+    "diagram.svg"
   ],
   "publishConfig": {
     "access": "public"
