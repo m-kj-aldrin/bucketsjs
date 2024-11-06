@@ -1,107 +1,57 @@
-import { Stack } from "./stack.js";
-
-const easing_functions = {
-  /**@param {number} x */
-  linear: (x) => x,
-};
-
-/**@typedef {(x:number)=>number} EasingFunction */
-
-/**@typedef {"linear"} BuiltInEasingFunctions */
-
-/**
- * @typedef {Object} options
- * @prop {number} [duration]
- * @prop {BuiltInEasingFunctions | EasingFunction} [easing]
- */
-
-/**
- * @param {number} a
- * @param {number} b
- * @param {number} f
- */
-function interpolate(a, b, f) {
-  return a * (1 - f) + b * f;
-}
-
-/**@type {Required<options>} */
-const default_opt = {
-  duration: 100,
-  easing: "linear",
-};
-
 export default class Bucket {
-  #bucketStack = new Stack();
+    #default_duration = 0;
 
-  /**@type {Required<options>} */
-  #options;
+    /** @type {{target:number,duration:number,start_time:number}[]} */
+    #stack = [];
 
-  /**
-   * @param {number} value
-   * @param {options} options
-   */
-  constructor(value, options) {
-    this.#options = { ...default_opt, ...options };
-    this.#bucketStack.push(value);
-  }
+    /**@type {number|null} */
+    #start_time = null;
 
-  /**
-   * Returns the value of the head of the bucket stack
-   */
-  get value() {
-    return this.#bucketStack.head?.value;
-  }
+    #static_value = 0;
 
-  /**
-   * Returns the bucket stack
-   */
-  get stack() {
-    return this.#bucketStack.elements.map((node) => node.value);
-  }
+    /**
+     * @param {number} value
+     * @param {number} duration n
+     */
+    constructor(value, duration) {
+        this.#default_duration = duration;
+        this.#static_value = value;
+    }
 
-  /**
-   * Writes a new value to the bucket stack, returns a promise that resolves when the duration has elapsed
-   * @param {number} value
-   */
-  write(value) {
-    if (typeof value != "number") return;
+    /**
+     * @param {number} value
+     * @param {number} [duration]
+     */
+    setTarget(value, duration = this.#default_duration) {
+        const now = performance.now();
 
-    let localValue = this.#bucketStack.head?.value ?? value;
-    const localNode = this.#bucketStack.push(localValue);
+        if (this.#start_time === null) this.#start_time = now;
 
-    const localStartTime = performance.now();
+        this.#stack.push({ target: value, duration, start_time: now }) - 1;
+    }
 
-    const easing_function =
-      typeof this.#options.easing === "function"
-        ? this.#options.easing
-        : easing_functions[this.#options.easing];
+    get value() {
+        let now = performance.now();
 
-    /**@type {Promise<number>} */
-    return new Promise((res) => {
-      /**@param {number} now */
-      const iterate = (now) => {
-        const localElapsedTime = now - localStartTime;
+        let current_value = this.#stack.reduce((sum, target, i, arr) => {
+            if (target.target == sum) return sum;
 
-        if (localElapsedTime > this.#options.duration) {
-          localValue = value;
-          localNode.value = localValue;
+            let t = (now - target.start_time) / target.duration;
 
-          this.#bucketStack.delete(localNode.prev);
+            if (t >= 1) {
+                if (i > 0) {
+                    delete arr[i - 1];
+                }
+                if (i == arr.length - 1) {
+                    this.#stack = [];
+                    this.#static_value = target.target;
+                }
+                return target.target;
+            }
+            sum = sum * (1 - t) + target.target * t;
+            return sum;
+        }, this.#static_value);
 
-          res(localNode);
-          return;
-        }
-        let prevValue = localNode.prev?.value ?? value;
-        localValue = interpolate(
-          prevValue,
-          value,
-          easing_function(localElapsedTime / this.#options.duration)
-        );
-        localNode.value = localValue;
-
-        requestAnimationFrame(iterate);
-      };
-      requestAnimationFrame(iterate);
-    });
-  }
+        return current_value;
+    }
 }

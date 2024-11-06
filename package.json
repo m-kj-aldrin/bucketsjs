@@ -1,26 +1,25 @@
 {
-  "license": "ISC",
-  "author": "mkja",
-  "name": "@mkja/buckets",
-  "version": "0.2.4",
-  "description": "",
-  "main": "dist/index.js",
-  "types": "types/index.d.ts",
-  "type": "module",
-  "files": [
-    "dist",
-    "types",
-    "diagram.svg"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build && tsc"
-  },
-  "devDependencies": {
-    "typescript": "^5.4.5",
-    "vite": "^5.2.12"
-  }
+    "license": "ISC",
+    "author": "mkja",
+    "name": "@mkja/buckets",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "types": "types/index.d.ts",
+    "type": "module",
+    "files": [
+        "dist",
+        "types"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build && tsc"
+    },
+    "devDependencies": {
+        "typescript": "^5.4.5",
+        "vite": "^5.2.12"
+    }
 }
