@@ -2,12 +2,16 @@
 
 An time based interpolating stack, each element in the stack interpolates by it's previous element and it's set value. When an element has elapsed the set duration it's previous element is deleted keeping only alive elements in the stack.
 
+**[demo](https://m-kj-aldrin.github.io/bucketsjs/)**
+
 ```shell
 npm i @mkja/buckets
 ```
 
 ```javascript
 import Bucket from "@mkja/buckets";
+
+const rand = (a, b) => Math.random() * (b - a) + a;
 
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
@@ -17,23 +21,54 @@ document.body.append(canvas);
 canvas.width = canvas.clientWidth;
 canvas.height = canvas.clientHeight;
 
-let mx = new Bucket(canvas.width / 2, 1024);
-let my = new Bucket(canvas.height / 2, 1024);
+const train = [...Array(32)].map((_, i) => {
+    return {
+        x: new Bucket(canvas.width / 2 + rand(-32, 32), 1024 + i * 32),
+        y: new Bucket(canvas.height / 2 + rand(-32, 32), 1024 + i * 32),
+    };
+});
+
+let lastRead = null;
+function read() {
+    if (lastRead == null) lastRead = performance.now();
+
+    let now = performance.now();
+    let elapsed = now - lastRead;
+
+    if (elapsed >= 1024) {
+        lastRead = null;
+        return;
+    }
+
+    train.slice(1).forEach((t, i) => {
+        i += 1;
+        const prev_t = train[i - 1];
+
+        t.x.setTarget(prev_t.x.value);
+        t.y.setTarget(prev_t.y.value);
+    });
+
+    requestAnimationFrame(read);
+}
 
 document.body.addEventListener("pointermove", (e) => {
     const { clientX, clientY } = e;
 
-    mx.setTarget(clientX);
-    my.setTarget(clientY);
+    train[0].x.setTarget(clientX);
+    train[0].y.setTarget(clientY);
+
+    lastRead === null && read();
 });
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.beginPath();
-    ctx.roundRect(mx.value - 8, my.value - 8, 16, 16, 8);
-    ctx.closePath();
-    ctx.fill();
+    train.forEach((t) => {
+        ctx.beginPath();
+        ctx.arc(t.x.value, t.y.value, 4, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.stroke();
+    });
 }
 
 let hz120 = 1000 / 120;
@@ -53,4 +88,5 @@ function loop(t = 0) {
 }
 
 requestAnimationFrame(loop);
+
 ```
