@@ -7,68 +7,49 @@ npm i @mkja/buckets
 ```
 
 ```javascript
-import Bucket from "@mkja/buckets";
+import Bucket from "../src/index.js";
 
 const canvas = document.createElement("canvas");
-document.body.appendChild(canvas);
+const ctx = canvas.getContext("2d");
+
+document.body.append(canvas);
 
 canvas.width = canvas.clientWidth;
 canvas.height = canvas.clientHeight;
 
-const bucketX = new Bucket(canvas.width / 2, { duration: 2000, easing: (x) => x * x * x });
+let mx = new Bucket(canvas.width / 2, 1000);
+let my = new Bucket(canvas.height / 2, 1000);
 
-const bucketY = new Bucket(canvas.height / 2, { duration: 2000, easing: (x) => x * x * x });
+document.body.addEventListener("pointermove", (e) => {
+    const { clientX, clientY } = e;
 
-canvas.addEventListener("mousemove", (e) => {
-  let [x, y] = [e.clientX, e.clientY];
-  bucketX.write(x);
-  bucketY.write(y);
+    mx.setTarget(clientX);
+    my.setTarget(clientY);
 });
 
-const ctx = canvas.getContext("2d");
-
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const tail = { x: bucketX.stack, y: bucketY.stack };
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const segments = tail.x.map((_, i) => {
-    i = tail.x.length - 1 - i;
-    const pos = { x: tail.x[i], y: tail.y[i] };
-    return pos;
-  });
-
-  let lineWidth = 12;
-
-  segments.forEach((segment, i) => {
-    ctx.beginPath();
-    if (i == 0) {
-      ctx.moveTo(segment.x, segment.y);
-
-      return;
-    } else {
-      ctx.moveTo(segments[i - 1].x, segments[i - 1].y);
-    }
-
-    ctx.lineTo(segment.x, segment.y);
-
-    let f = i / segments.length;
-    ctx.lineWidth = 1 + (1 - f) * lineWidth;
-    ctx.strokeStyle = `hsla(0,50%,50%,${1 - f})`;
-
-    ctx.stroke();
-  });
-
-  const firstSegment = segments[0];
-
-  if (firstSegment) {
-    ctx.beginPath();
-    ctx.arc(firstSegment.x, firstSegment.y, lineWidth / 2, 0, Math.PI * 2);
-    ctx.fillStyle = "hsl(0,50%,50%)";
+    ctx.beginPath()
+    ctx.roundRect(mx.value - 8, my.value - 8, 16, 16, 8);
+    ctx.closePath()
     ctx.fill();
-  }
-
-  requestAnimationFrame(draw);
 }
 
-requestAnimationFrame(draw);
+let timeStamp = performance.now();
+function loop(t = 0) {
+    let now = performance.now();
+    let elapsed = now - timeStamp;
+
+    if (elapsed >= 30) {
+        timeStamp = now;
+
+        draw();
+    }
+
+    requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+
 ```
