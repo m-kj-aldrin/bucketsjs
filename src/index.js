@@ -4,14 +4,11 @@ export default class Bucket {
     /** @type {{target:number,duration:number,start_time:number}[]} */
     #stack = [];
 
-    /**@type {number|null} */
-    #start_time = null;
-
     #static_value = 0;
 
     /**
-     * @param {number} value
-     * @param {number} duration n
+     * @param {number} value the start value of the bucket
+     * @param {number} duration The default duration to be used when setTarget is called
      */
     constructor(value, duration) {
         this.#default_duration = duration;
@@ -19,17 +16,18 @@ export default class Bucket {
     }
 
     /**
-     * @param {number} value
-     * @param {number} [duration]
+     * @param {number} value the target value to reach over the duration
+     * @param {number} [duration] optional duration, if not set the default duration set by the constructor is used
      */
     setTarget(value, duration = this.#default_duration) {
         const now = performance.now();
 
-        if (this.#start_time === null) this.#start_time = now;
-
         this.#stack.push({ target: value, duration, start_time: now }) - 1;
     }
 
+    /**
+     * The current value of the bucket
+     */
     get value() {
         let now = performance.now();
 
