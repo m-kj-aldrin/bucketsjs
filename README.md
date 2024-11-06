@@ -7,7 +7,7 @@ npm i @mkja/buckets
 ```
 
 ```javascript
-import Bucket from "../src/index.js";
+import Bucket from "@mkja/buckets";
 
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");

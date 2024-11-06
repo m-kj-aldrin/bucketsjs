@@ -11,7 +11,7 @@ export default class Bucket {
      * @param {number} duration The default duration to be used when setTarget is called
      */
     constructor(value, duration) {
-        this.#default_duration = duration;
+        this.#default_duration = duration || 1;
         this.#static_value = value;
     }
 
@@ -21,6 +21,8 @@ export default class Bucket {
      */
     setTarget(value, duration = this.#default_duration) {
         const now = performance.now();
+
+        duration = duration || 1;
 
         this.#stack.push({ target: value, duration, start_time: now }) - 1;
     }
