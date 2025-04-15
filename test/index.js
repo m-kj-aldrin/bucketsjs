@@ -99,7 +99,7 @@ setInterval(() => {
         target.x += rand(-f, f);
         target.y += rand(-f, f);
 
-        const randPart = train[0];
+        const randPart = rand() > 0.95 ? randChoice(train) : train[0];
 
         randPart.x.setTarget(target.x, 700, EasingFunctions.easeOutQuad);
         randPart.y.setTarget(target.y, 700), EasingFunctions.easeOutQuad;
