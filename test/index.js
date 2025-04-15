@@ -49,7 +49,7 @@ const train = [...Array(32)].map((_, i) => {
 // --- Animation Logic ---
 
 let readLoopActive = false; // Flag to track if the read loop is running
-let readQue = []
+let readQue = [];
 
 function read() {
     // If the flag is false, stop the loop
@@ -94,8 +94,8 @@ setInterval(() => {
         target.x += rand(-10, 10);
         target.y += rand(-10, 10);
 
-        train[0].x.setTarget(target.x);
-        train[0].y.setTarget(target.y);
+        train[0].x.setTarget(target.x, 700, EasingFunctions.easeOutQuad);
+        train[0].y.setTarget(target.y, 700), EasingFunctions.easeOutQuad;
 
         if (!readLoopActive) {
             readLoopActive = true;
@@ -133,6 +133,21 @@ setInterval(() => {
         }
     }
 }, 500);
+
+setInterval(() => {
+    if (Math.random() > 0.8) {
+        target.x += rand(-120, 120);
+        target.y += rand(-120, 120);
+
+        train[0].x.setTarget(target.x, 1500, EasingFunctions.easeInOutQuad);
+        train[0].y.setTarget(target.y, 1500, EasingFunctions.easeInOutQuad);
+
+        if (!readLoopActive) {
+            readLoopActive = true;
+            read();
+        }
+    }
+}, 1000);
 
 // Optional: Stop the read loop if the mouse leaves the window
 // document.body.addEventListener("pointerleave", () => {
