@@ -89,13 +89,20 @@ document.body.addEventListener("pointermove", (e) => {
 
 let target = { x: canvas.width / 2, y: canvas.height / 2 };
 
+const randChoice = /**@template {any[]} T @param {T} arr */ (arr) =>
+    arr[Math.floor(Math.random() * arr.length)];
+
 setInterval(() => {
     if (Math.random() > 0.9) {
-        target.x += rand(-10, 10);
-        target.y += rand(-10, 10);
+        let f = 5;
 
-        train[0].x.setTarget(target.x, 700, EasingFunctions.easeOutQuad);
-        train[0].y.setTarget(target.y, 700), EasingFunctions.easeOutQuad;
+        target.x += rand(-f, f);
+        target.y += rand(-f, f);
+
+        const randPart = train[0];
+
+        randPart.x.setTarget(target.x, 700, EasingFunctions.easeOutQuad);
+        randPart.y.setTarget(target.y, 700), EasingFunctions.easeOutQuad;
 
         if (!readLoopActive) {
             readLoopActive = true;
