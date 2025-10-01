@@ -26,14 +26,14 @@ window.addEventListener("resize", resizeCanvas);
 // Use a longer duration for a smoother train effect
 const segmentDuration = 100; // ms
 
-const train = [...Array(96)].map((_, i) => {
+const train = [...Array(2048)].map((_, i) => {
   // Start train segments slightly offset initially for visual clarity
   const initialX = canvas.width / 2;
   const initialY = canvas.height / 2;
   return {
     // Give each segment a slightly different duration for more organic movement
-    x: new Bucket(initialX, segmentDuration + rand(-100, 100), rand() > 0.8 ? EasingFunctions.easeInCubic : EasingFunctions.linear),
-    y: new Bucket(initialY, segmentDuration + rand(-100, 100), rand() > 0.8 ? EasingFunctions.easeInCubic : EasingFunctions.linear),
+    x: new Bucket(initialX + rand(-300, 300), segmentDuration + rand(-50, 150), EasingFunctions.easeInOutCubic),
+    y: new Bucket(initialY + rand(-300, 300), segmentDuration + rand(-50, 150), EasingFunctions.easeInOutCubic),
   };
 });
 
@@ -89,8 +89,8 @@ function updateFront() {
   let dx = (mx - target.x) / canvas.width;
   let dy = (my - target.y) / canvas.height;
 
-  target.x += dx * 100;
-  target.y += dy * 100;
+  target.x += dx * 200;
+  target.y += dy * 200;
 
   //   console.log({ targetX: target.x, targetY: target.y, dx, dy, mx, my });
 
@@ -101,14 +101,14 @@ updateFront();
 
 setInterval(() => {
   if (Math.random() > 0.9) {
-    let f = 1;
+    let f = 10;
 
     target.x += rand(-f, f);
     target.y += rand(-f, f);
 
     // const randPart = rand() > 0.55 ? randChoice(train) : train[0];
-    train[0].x.setTarget(target.x,100,EasingFunctions.easeOutQuad)
-    train[0].y.setTarget(target.y,100,EasingFunctions.easeOutQuad)
+    train[0].x.setTarget(target.x, 100, EasingFunctions.easeOutQuad);
+    train[0].y.setTarget(target.y, 100, EasingFunctions.easeOutQuad);
 
     // randPart.x.setTarget(target.x, 700, EasingFunctions.easeOutQuad);
     // randPart.y.setTarget(target.y, 700), EasingFunctions.easeOutQuad;
@@ -121,24 +121,24 @@ setInterval(() => {
 }, 100);
 
 setInterval(() => {
-  //   if (Math.random() > 0.7) {
-  let f = 100;
+    if (Math.random() > 0.7) {
+  let f = 20;
 
-    target.x += rand(-f, f);
-    target.y += rand(-f, f);
-//   let tx = rand(-f, f) + target.x;
-//   let ty = rand(-f, f) + target.y;
+  target.x += rand(-f, f);
+  target.y += rand(-f, f);
+  //   let tx = rand(-f, f) + target.x;
+  //   let ty = rand(-f, f) + target.y;
 
   //   console.log({tx,ty});
 
-  train[0].x.setTarget(target.x, 200, EasingFunctions.easeInCubic);
-  train[0].y.setTarget(target.y, 200, EasingFunctions.easeInCubic);
+  train[0].x.setTarget(target.x, 100, EasingFunctions.easeInCubic);
+  train[0].y.setTarget(target.y, 100, EasingFunctions.easeInCubic);
 
   if (!readLoopActive) {
     readLoopActive = true;
     read();
   }
-  //   }
+    }
 }, 300);
 
 setInterval(() => {
@@ -147,8 +147,8 @@ setInterval(() => {
     target.x += rand(-f, f);
     target.y += rand(-f, f);
 
-    train[0].x.setTarget(target.x,100);
-    train[0].y.setTarget(target.y,100);
+    train[0].x.setTarget(target.x, 100);
+    train[0].y.setTarget(target.y, 100);
 
     if (!readLoopActive) {
       readLoopActive = true;
@@ -159,12 +159,12 @@ setInterval(() => {
 
 setInterval(() => {
   if (Math.random() > 0.8) {
-    let f = 500;
+    let f = 50;
     target.x += rand(-f, f);
     target.y += rand(-f, f);
 
-    train[0].x.setTarget(target.x, 500, EasingFunctions.easeInOutQuad);
-    train[0].y.setTarget(target.y, 500, EasingFunctions.easeInOutQuad);
+    train[0].x.setTarget(target.x, 200, EasingFunctions.easeInOutQuad);
+    train[0].y.setTarget(target.y, 200, EasingFunctions.easeInOutQuad);
 
     if (!readLoopActive) {
       readLoopActive = true;
